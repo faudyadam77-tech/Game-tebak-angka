@@ -83,13 +83,13 @@
     margin-right: auto;
   }
 
-  /* ===== TOMBOL ANGKA DENGAN FONT SUPER TEBAL ===== */
+  /* ===== TOMBOL ANGKA DENGAN FONT SEIMBANG ===== */
   .number-btn {
     border: 4px solid #000;
     border-radius: 20px;
     padding: 20px 10px;
     font-size: clamp(50px, 12vw, 75px);
-    font-weight: 900;
+    font-weight: 700; /* Dikurangi dari 900 ke 700 */
     color: #000;
     cursor: pointer;
     box-shadow: 0 6px 15px rgba(0,0,0,0.3);
@@ -100,15 +100,11 @@
     align-items: center;
     justify-content: center;
     
-    /* ===== EFEK FONT SUPER TEBAL ===== */
-    -webkit-text-stroke: 3px #000;           /* Stroke hitam di sekeliling angka */
+    /* Efek outline tipis saja */
+    -webkit-text-stroke: 1px #000; /* Dikurangi dari 3px ke 1px */
     text-shadow: 
-      2px 2px 0 #000,                        /* Bayangan kanan bawah */
-      -2px -2px 0 #000,                      /* Bayangan kiri atas */
-      2px -2px 0 #000,                       /* Bayangan kanan atas */
-      -2px 2px 0 #000,                       /* Bayangan kiri bawah */
-      0 4px 0 rgba(0,0,0,0.3);               /* Bayangan bawah untuk efek 3D */
-    letter-spacing: -2px;                    /* Merapatkan huruf */
+      1px 1px 0 rgba(0,0,0,0.2),  /* Bayangan halus kanan bawah */
+      0 2px 4px rgba(0,0,0,0.15); /* Bayangan lembut untuk efek timbul */
   }
 
   .number-btn:active { transform: scale(0.92); }
@@ -138,7 +134,7 @@
     border-color: #00b894;
     animation: correctPulse 0.5s;
     color: #000 !important;
-    -webkit-text-stroke: 3px #000 !important;
+    -webkit-text-stroke: 1px #000 !important;
   }
 
   .number-btn.wrong {
@@ -146,7 +142,7 @@
     border-color: #d63031;
     animation: shake 0.5s;
     color: #000 !important;
-    -webkit-text-stroke: 3px #000 !important;
+    -webkit-text-stroke: 1px #000 !important;
   }
 
   @keyframes correctPulse {
