@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 Tebak Angka - Game Wafi</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  .title {
+    color: #fff;
+    font-size: clamp(28px, 6vw, 48px);
+    text-shadow: 4px 4px 0 #ff6b9d, 6px 6px 10px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+    text-align: center;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .subtitle {
+    color: #fff;
+    font-size: clamp(16px, 3vw, 22px);
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .game-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    padding: 30px 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: min(95vw, 500px);
+    text-align: center;
+  }
+
+  .instruction {
+    font-size: clamp(18px, 4vw, 24px);
+    color: #6c5ce7;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+
+  .speaker-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: none;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(240, 147, 251, 0.5);
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+  }
+
+  .speaker-btn:active { transform: scale(0.9); }
+  .speaker-btn:hover { transform: scale(1.1); }
+
+  .numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .number-btn {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    border: none;
+    border-radius: 20px;
+    padding: 20px 10px;
+    font-size: clamp(32px, 8vw, 48px);
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(67, 233, 123, 0.4);
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .number-btn:active { transform: scale(0.9); }
+  .number-btn:hover { transform: translateY(-5px); }
+
+  .number-btn.correct {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    animation: correctPulse 0.5s;
+  }
+
+  .number-btn.wrong {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    animation: shake 0.5s;
+  }
+
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  .progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .star {
+    font-size: 32px;
+    opacity: 0.3;
+    transition: all 0.3s;
+  }
+
+  .star.earned {
+    opacity: 1;
+    animation: starPop 0.5s;
+  }
+
+  @keyframes starPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+  }
+
+  .score-text {
+    font-size: 18px;
+    color: #636e72;
+    margin-bottom: 10px;
+  }
+
+  /* Modal Celebration */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal.show { display: flex; }
+
+  .modal-content {
+    background: linear-gradient(135deg, #fff 0%, #ffeaa7 100%);
+    padding: 40px 30px;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    max-width: 400px;
+    width: 100%;
+    animation: celebrationBounce 0.6s;
+  }
+
+  @keyframes celebrationBounce {
+    0% { transform: scale(0) rotate(-10deg); }
+    60% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .modal-content h1 {
+    font-size: clamp(32px, 7vw, 48px);
+    color: #d63031;
+    margin-bottom: 15px;
+    text-shadow: 3px 3px 0 #fff;
+  }
+
+  .modal-content .emoji {
+    font-size: 80px;
+    margin-bottom: 15px;
+    animation: spin 1s infinite;
+  }
+
+  @keyframes spin {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+  }
+
+  .modal-content p {
+    font-size: 20px;
+    color: #2d3436;
+    margin-bottom: 20px;
+  }
+
+  .btn-primary {
+    padding: 15px 30px;
+    font-size: 20px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+    font-family: inherit;
+    margin: 5px;
+  }
+
+  .btn-primary:active { transform: scale(0.95); }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: fall 3s linear;
+    z-index: 99;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  .feedback {
+    font-size: 24px;
+    font-weight: bold;
+    min-height: 30px;
+    margin-bottom: 10px;
+  }
+
+  .feedback.correct { color: #00b894; }
+  .feedback.wrong { color: #d63031; }
+</style>
+</head>
+<body>
+  <h1 class="title">🎮 Tebak Angka </h1>
+  <p class="subtitle">Ayo main bareng, Wafi! 🌟</p>
+
+  <div class="game-container">
+    <div class="instruction">Dengarkan angkanya, lalu pilih! 👂</div>
+    
+    <button class="speaker-btn" onclick="speakNumber()" title="Dengarkan lagi">🔊</button>
+    
+    <div class="feedback" id="feedback"></div>
+    
+    <div class="progress" id="progress">
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+    </div>
+    
+    <div class="score-text">Benar berturut-turut: <span id="streak">0</span> / 5</div>
+    
+    <div class="numbers-grid">
+      <button class="number-btn" onclick="checkAnswer(1)">1</button>
+      <button class="number-btn" onclick="checkAnswer(2)">2</button>
+      <button class="number-btn" onclick="checkAnswer(3)">3</button>
+      <button class="number-btn" onclick="checkAnswer(4)">4</button>
+      <button class="number-btn" onclick="checkAnswer(5)">5</button>
+    </div>
+  </div>
+
+  <!-- Modal Celebration -->
+  <div class="modal" id="celebrationModal">
+    <div class="modal-content">
+      <div class="emoji">🎉</div>
+      <h1>Yey, Wafi Hebat!</h1>
+      <p>Kamu berhasil menjawab 5 soal dengan benar! </p>
+      <button class="btn-primary" onclick="continueGame()">Main Lagi! 🎮</button>
+    </div>
+  </div>
+
+<script>
+  // ===== STATE =====
+  let currentNumber = 0;
+  let streak = 0;
+  let isProcessing = false;
+  const targetStreak = 5;
+
+  // ===== AUDIO CONTEXT untuk efek suara =====
+  let audioCtx = null;
+  
+  function initAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch(e) {
+        console.log('Audio tidak tersedia');
+      }
+    }
+  }
+
+  function playSound(type) {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    
+    if (type === 'correct') {
+      // Suara ceria naik
+      [523, 659, 784, 1047].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        gain.gain.setValueAtTime(0, now + i * 0.1);
+        gain.gain.linearRampToValueAtTime(0.3, now + i * 0.1 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i * 0.1 + 0.2);
+        osc.start(now + i * 0.1);
+        osc.stop(now + i * 0.1 + 0.2);
+      });
+    } else if (type === 'wrong') {
+      // Suara sedih turun
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } else if (type === 'celebration') {
+      // Fanfare kemenangan
+      const melody = [523, 659, 784, 1047, 784, 1047, 1319];
+      melody.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        gain.gain.setValueAtTime(0, now + i * 0.15);
+        gain.gain.linearRampToValueAtTime(0.4, now + i * 0.15 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i * 0.15 + 0.3);
+        osc.start(now + i * 0.15);
+        osc.stop(now + i * 0.15 + 0.3);
+      });
+    }
+  }
+
+  // ===== SPEECH SYNTHESIS =====
+  function speak(text, lang = 'id-ID') {
+    if (!('speechSynthesis' in window)) {
+      console.log('Speech synthesis tidak tersedia');
+      return;
+    }
+    
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = 0.9;
+    utterance.pitch = 1.2;
+    utterance.volume = 1;
+    
+    // Cari suara Indonesia jika ada
+    const voices = window.speechSynthesis.getVoices();
+    const indonesianVoice = voices.find(v => v.lang.startsWith('id'));
+    if (indonesianVoice) {
+      utterance.voice = indonesianVoice;
+    }
+    
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function speakNumber() {
+    initAudio();
+    if (currentNumber > 0) {
+      speak(`Angka ${currentNumber}`);
+    }
+  }
+
+  // ===== GAME LOGIC =====
+  function generateNewNumber() {
+    currentNumber = Math.floor(Math.random() * 5) + 1;
+    isProcessing = false;
+    
+    // Tunggu sebentar sebelum mengucapkan
+    setTimeout(() => {
+      speakNumber();
+    }, 500);
+  }
+
+  function checkAnswer(selectedNumber) {
+    if (isProcessing) return;
+    isProcessing = true;
+    
+    initAudio();
+    
+    const feedbackEl = document.getElementById('feedback');
+    const buttons = document.querySelectorAll('.number-btn');
+    
+    // Disable semua tombol sementara
+    buttons.forEach(btn => btn.style.pointerEvents = 'none');
+    
+    if (selectedNumber === currentNumber) {
+      // BENAR
+      streak++;
+      playSound('correct');
+      speak('Benar! Hebat!');
+      
+      feedbackEl.textContent = '✅ Benar!';
+      feedbackEl.className = 'feedback correct';
+      
+      // Highlight tombol yang benar
+      buttons[selectedNumber - 1].classList.add('correct');
+      
+      // Update progress bintang
+      updateStars();
+      document.getElementById('streak').textContent = streak;
+      
+      // Cek apakah sudah 5 benar berturut-turut
+      if (streak >= targetStreak) {
+        setTimeout(() => {
+          showCelebration();
+        }, 1500);
+      } else {
+        // Lanjut ke soal berikutnya
+        setTimeout(() => {
+          resetRound();
+          generateNewNumber();
+        }, 2000);
+      }
+    } else {
+      // SALAH
+      streak = 0;
+      playSound('wrong');
+      speak('Coba lagi ya!');
+      
+      feedbackEl.textContent = '❌ Coba lagi!';
+      feedbackEl.className = 'feedback wrong';
+      
+      // Highlight tombol yang salah
+      buttons[selectedNumber - 1].classList.add('wrong');
+      
+      // Update progress
+      updateStars();
+      document.getElementById('streak').textContent = streak;
+      
+      // Lanjut ke soal baru (tetap acak)
+      setTimeout(() => {
+        resetRound();
+        generateNewNumber();
+      }, 2000);
+    }
+  }
+
+  function resetRound() {
+    const buttons = document.querySelectorAll('.number-btn');
+    buttons.forEach(btn => {
+      btn.classList.remove('correct', 'wrong');
+      btn.style.pointerEvents = 'auto';
+    });
+    document.getElementById('feedback').textContent = '';
+  }
+
+  function updateStars() {
+    const stars = document.querySelectorAll('.star');
+    stars.forEach((star, index) => {
+      if (index < streak) {
+        star.classList.add('earned');
+      } else {
+        star.classList.remove('earned');
+      }
+    });
+  }
+
+  function showCelebration() {
+    playSound('celebration');
+    speak('Yey! Wafi hebat! Kamu luar biasa!');
+    document.getElementById('celebrationModal').classList.add('show');
+    createConfetti();
+  }
+
+  function continueGame() {
+    document.getElementById('celebrationModal').classList.remove('show');
+    streak = 0;
+    updateStars();
+    document.getElementById('streak').textContent = streak;
+    resetRound();
+    generateNewNumber();
+  }
+
+  // ===== CONFETTI EFFECT =====
+  function createConfetti() {
+    const colors = ['#ff6b9d', '#ffd93d', '#6bcf7f', '#4d96ff', '#ff6b6b', '#a8e6cf'];
+    
+    for (let i = 0; i < 50; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 4000);
+      }, i * 50);
+    }
+  }
+
+  // ===== INITIALIZATION =====
+  window.addEventListener('load', () => {
+    // Load voices
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+    
+    // Mulai game setelah delay singkat
+    setTimeout(() => {
+      speak('Halo Wafi! Ayo kita bermain tebak angka!');
+      setTimeout(() => {
+        generateNewNumber();
+      }, 2000);
+    }, 500);
+  });
+
+  // Klik di mana saja untuk mengaktifkan audio (browser requirement)
+  document.addEventListener('click', () => {
+    initAudio();
+  }, { once: true });
+</script>
+</body>
+</html>
+
