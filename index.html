@@ -71,48 +71,63 @@
   .speaker-btn:active { transform: scale(0.9); }
   .speaker-btn:hover { transform: scale(1.1); }
 
+  /* ===== LAYOUT DIAMOND (BERLIAN) ===== */
   .numbers-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 15px;
     margin-bottom: 20px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  /* ===== TOMBOL ANGKA DENGAN WARNA KONTRAS ===== */
+  /* Tombol angka dengan warna kontras */
   .number-btn {
     border: 4px solid #000;
     border-radius: 20px;
     padding: 20px 10px;
     font-size: clamp(40px, 10vw, 60px);
     font-weight: 900;
-    color: #000; /* ANGKA HITAM */
+    color: #000;
     cursor: pointer;
     box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     transition: all 0.2s;
     font-family: inherit;
     text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
-    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .number-btn:active { transform: scale(0.92); }
   .number-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
 
-  /* Warna kotak berbeda-beda, semua cerah agar angka hitam terlihat jelas */
-  .number-btn:nth-child(1) {
-    background: linear-gradient(135deg, #fff176 0%, #ffeb3b 100%); /* KUNING */
+  /* Warna kotak berbeda-beda */
+  .number-btn:nth-child(1) { background: linear-gradient(135deg, #fff176 0%, #ffeb3b 100%); }
+  .number-btn:nth-child(2) { background: linear-gradient(135deg, #81d4fa 0%, #4fc3f7 100%); }
+  .number-btn:nth-child(3) { background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%); }
+  .number-btn:nth-child(4) { background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%); }
+  .number-btn:nth-child(5) { background: linear-gradient(135deg, #ffcc80 0%, #ffa726 100%); }
+
+  /* ===== POSISI TOMBOL DIAMOND ===== */
+  /* Baris 1: Angka 1 di kiri, Angka 2 di kanan */
+  .number-btn:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .number-btn:nth-child(2) { grid-column: 2; grid-row: 1; }
+  
+  /* Baris 2: Angka 3 di tengah (span 2 kolom) */
+  .number-btn:nth-child(3) { 
+    grid-column: 1 / span 2; 
+    grid-row: 2; 
+    justify-self: center;
+    width: 50%;
   }
-  .number-btn:nth-child(2) {
-    background: linear-gradient(135deg, #81d4fa 0%, #4fc3f7 100%); /* BIRU MUDA */
-  }
-  .number-btn:nth-child(3) {
-    background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%); /* HIJAU MUDA */
-  }
-  .number-btn:nth-child(4) {
-    background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%); /* PINK */
-  }
-  .number-btn:nth-child(5) {
-    background: linear-gradient(135deg, #ffcc80 0%, #ffa726 100%); /* ORANGE */
-  }
+  
+  /* Baris 3: Angka 4 di kiri, Angka 5 di kanan */
+  .number-btn:nth-child(4) { grid-column: 1; grid-row: 3; }
+  .number-btn:nth-child(5) { grid-column: 2; grid-row: 3; }
 
   .number-btn.correct {
     background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
@@ -169,7 +184,6 @@
     margin-bottom: 10px;
   }
 
-  /* Modal Celebration */
   .modal {
     position: fixed;
     inset: 0;
@@ -240,7 +254,6 @@
 
   .btn-primary:active { transform: scale(0.95); }
 
-  /* Confetti */
   .confetti {
     position: fixed;
     width: 10px;
@@ -269,7 +282,7 @@
 </style>
 </head>
 <body>
-  <h1 class="title"> Tebak Angka 🎯</h1>
+  <h1 class="title">🎮 Tebak Angka 🎯</h1>
   <p class="subtitle">Ayo main bareng, Wafi! 🌟</p>
 
   <div class="game-container">
@@ -289,6 +302,7 @@
     
     <div class="score-text">Benar berturut-turut: <span id="streak">0</span> / 5</div>
     
+    <!-- Layout Diamond -->
     <div class="numbers-grid">
       <button class="number-btn" onclick="checkAnswer(1)">1</button>
       <button class="number-btn" onclick="checkAnswer(2)">2</button>
@@ -298,7 +312,6 @@
     </div>
   </div>
 
-  <!-- Modal Celebration -->
   <div class="modal" id="celebrationModal">
     <div class="modal-content">
       <div class="emoji">🎉</div>
@@ -309,22 +322,17 @@
   </div>
 
 <script>
-  // ===== STATE =====
   let currentNumber = 0;
   let streak = 0;
   let isProcessing = false;
   const targetStreak = 5;
-
-  // ===== AUDIO CONTEXT untuk efek suara =====
   let audioCtx = null;
   
   function initAudio() {
     if (!audioCtx) {
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      } catch(e) {
-        console.log('Audio tidak tersedia');
-      }
+      } catch(e) { console.log('Audio tidak tersedia'); }
     }
   }
 
@@ -376,98 +384,63 @@
     }
   }
 
-  // ===== SPEECH SYNTHESIS =====
   function speak(text, lang = 'id-ID') {
-    if (!('speechSynthesis' in window)) {
-      console.log('Speech synthesis tidak tersedia');
-      return;
-    }
-    
+    if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
     utterance.rate = 0.9;
     utterance.pitch = 1.2;
     utterance.volume = 1;
-    
     const voices = window.speechSynthesis.getVoices();
     const indonesianVoice = voices.find(v => v.lang.startsWith('id'));
-    if (indonesianVoice) {
-      utterance.voice = indonesianVoice;
-    }
-    
+    if (indonesianVoice) utterance.voice = indonesianVoice;
     window.speechSynthesis.speak(utterance);
   }
 
   function speakNumber() {
     initAudio();
-    if (currentNumber > 0) {
-      speak(`Angka ${currentNumber}`);
-    }
+    if (currentNumber > 0) speak(`Angka ${currentNumber}`);
   }
 
-  // ===== GAME LOGIC =====
   function generateNewNumber() {
     currentNumber = Math.floor(Math.random() * 5) + 1;
     isProcessing = false;
-    
-    setTimeout(() => {
-      speakNumber();
-    }, 500);
+    setTimeout(() => speakNumber(), 500);
   }
 
   function checkAnswer(selectedNumber) {
     if (isProcessing) return;
     isProcessing = true;
-    
     initAudio();
-    
     const feedbackEl = document.getElementById('feedback');
     const buttons = document.querySelectorAll('.number-btn');
-    
     buttons.forEach(btn => btn.style.pointerEvents = 'none');
     
     if (selectedNumber === currentNumber) {
       streak++;
       playSound('correct');
       speak('Benar! Hebat!');
-      
       feedbackEl.textContent = '✅ Benar!';
       feedbackEl.className = 'feedback correct';
-      
       buttons[selectedNumber - 1].classList.add('correct');
-      
       updateStars();
       document.getElementById('streak').textContent = streak;
-      
       if (streak >= targetStreak) {
-        setTimeout(() => {
-          showCelebration();
-        }, 1500);
+        setTimeout(() => showCelebration(), 1500);
       } else {
-        setTimeout(() => {
-          resetRound();
-          generateNewNumber();
-        }, 2000);
+        setTimeout(() => { resetRound(); generateNewNumber(); }, 2000);
       }
     } else {
       streak = 0;
       playSound('wrong');
       speak('Coba lagi ya!');
-      
       feedbackEl.textContent = '❌ Coba lagi!';
       feedbackEl.className = 'feedback wrong';
-      
       buttons[selectedNumber - 1].classList.add('wrong');
-      
       updateStars();
       document.getElementById('streak').textContent = streak;
-      
-      setTimeout(() => {
-        resetRound();
-        generateNewNumber();
-      }, 2000);
+      setTimeout(() => { resetRound(); generateNewNumber(); }, 2000);
     }
   }
 
@@ -483,11 +456,8 @@
   function updateStars() {
     const stars = document.querySelectorAll('.star');
     stars.forEach((star, index) => {
-      if (index < streak) {
-        star.classList.add('earned');
-      } else {
-        star.classList.remove('earned');
-      }
+      if (index < streak) star.classList.add('earned');
+      else star.classList.remove('earned');
     });
   }
 
@@ -507,10 +477,8 @@
     generateNewNumber();
   }
 
-  // ===== CONFETTI EFFECT =====
   function createConfetti() {
     const colors = ['#ff6b9d', '#ffd93d', '#6bcf7f', '#4d96ff', '#ff6b6b', '#a8e6cf'];
-    
     for (let i = 0; i < 50; i++) {
       setTimeout(() => {
         const confetti = document.createElement('div');
@@ -520,32 +488,23 @@
         confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
         confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
         document.body.appendChild(confetti);
-        
         setTimeout(() => confetti.remove(), 4000);
       }, i * 50);
     }
   }
 
-  // ===== INITIALIZATION =====
   window.addEventListener('load', () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
-    
     setTimeout(() => {
       speak('Halo Wafi! Ayo kita bermain tebak angka!');
-      setTimeout(() => {
-        generateNewNumber();
-      }, 2000);
+      setTimeout(() => generateNewNumber(), 2000);
     }, 500);
   });
 
-  document.addEventListener('click', () => {
-    initAudio();
-  }, { once: true });
+  document.addEventListener('click', () => initAudio(), { once: true });
 </script>
 </body>
 </html>
