@@ -74,40 +74,63 @@
   .numbers-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
   }
 
+  /* ===== TOMBOL ANGKA DENGAN WARNA KONTRAS ===== */
   .number-btn {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    border: none;
+    border: 4px solid #000;
     border-radius: 20px;
     padding: 20px 10px;
-    font-size: clamp(32px, 8vw, 48px);
-    font-weight: bold;
-    color: #fff;
+    font-size: clamp(40px, 10vw, 60px);
+    font-weight: 900;
+    color: #000; /* ANGKA HITAM */
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(67, 233, 123, 0.4);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     transition: all 0.2s;
     font-family: inherit;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
+    position: relative;
   }
 
-  .number-btn:active { transform: scale(0.9); }
-  .number-btn:hover { transform: translateY(-5px); }
+  .number-btn:active { transform: scale(0.92); }
+  .number-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+
+  /* Warna kotak berbeda-beda, semua cerah agar angka hitam terlihat jelas */
+  .number-btn:nth-child(1) {
+    background: linear-gradient(135deg, #fff176 0%, #ffeb3b 100%); /* KUNING */
+  }
+  .number-btn:nth-child(2) {
+    background: linear-gradient(135deg, #81d4fa 0%, #4fc3f7 100%); /* BIRU MUDA */
+  }
+  .number-btn:nth-child(3) {
+    background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%); /* HIJAU MUDA */
+  }
+  .number-btn:nth-child(4) {
+    background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%); /* PINK */
+  }
+  .number-btn:nth-child(5) {
+    background: linear-gradient(135deg, #ffcc80 0%, #ffa726 100%); /* ORANGE */
+  }
 
   .number-btn.correct {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+    border-color: #00b894;
     animation: correctPulse 0.5s;
+    color: #000 !important;
   }
 
   .number-btn.wrong {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%) !important;
+    border-color: #d63031;
     animation: shake 0.5s;
+    color: #000 !important;
   }
 
   @keyframes correctPulse {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    50% { transform: scale(1.15); }
   }
 
   @keyframes shake {
@@ -246,7 +269,7 @@
 </style>
 </head>
 <body>
-  <h1 class="title">🎮 Tebak Angka </h1>
+  <h1 class="title"> Tebak Angka 🎯</h1>
   <p class="subtitle">Ayo main bareng, Wafi! 🌟</p>
 
   <div class="game-container">
@@ -280,7 +303,7 @@
     <div class="modal-content">
       <div class="emoji">🎉</div>
       <h1>Yey, Wafi Hebat!</h1>
-      <p>Kamu berhasil menjawab 5 soal dengan benar! </p>
+      <p>Kamu berhasil menjawab 5 soal dengan benar! 🌟</p>
       <button class="btn-primary" onclick="continueGame()">Main Lagi! 🎮</button>
     </div>
   </div>
@@ -310,7 +333,6 @@
     const now = audioCtx.currentTime;
     
     if (type === 'correct') {
-      // Suara ceria naik
       [523, 659, 784, 1047].forEach((freq, i) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -325,7 +347,6 @@
         osc.stop(now + i * 0.1 + 0.2);
       });
     } else if (type === 'wrong') {
-      // Suara sedih turun
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sawtooth';
@@ -338,7 +359,6 @@
       osc.start(now);
       osc.stop(now + 0.3);
     } else if (type === 'celebration') {
-      // Fanfare kemenangan
       const melody = [523, 659, 784, 1047, 784, 1047, 1319];
       melody.forEach((freq, i) => {
         const osc = audioCtx.createOscillator();
@@ -371,7 +391,6 @@
     utterance.pitch = 1.2;
     utterance.volume = 1;
     
-    // Cari suara Indonesia jika ada
     const voices = window.speechSynthesis.getVoices();
     const indonesianVoice = voices.find(v => v.lang.startsWith('id'));
     if (indonesianVoice) {
@@ -393,7 +412,6 @@
     currentNumber = Math.floor(Math.random() * 5) + 1;
     isProcessing = false;
     
-    // Tunggu sebentar sebelum mengucapkan
     setTimeout(() => {
       speakNumber();
     }, 500);
@@ -408,11 +426,9 @@
     const feedbackEl = document.getElementById('feedback');
     const buttons = document.querySelectorAll('.number-btn');
     
-    // Disable semua tombol sementara
     buttons.forEach(btn => btn.style.pointerEvents = 'none');
     
     if (selectedNumber === currentNumber) {
-      // BENAR
       streak++;
       playSound('correct');
       speak('Benar! Hebat!');
@@ -420,27 +436,22 @@
       feedbackEl.textContent = '✅ Benar!';
       feedbackEl.className = 'feedback correct';
       
-      // Highlight tombol yang benar
       buttons[selectedNumber - 1].classList.add('correct');
       
-      // Update progress bintang
       updateStars();
       document.getElementById('streak').textContent = streak;
       
-      // Cek apakah sudah 5 benar berturut-turut
       if (streak >= targetStreak) {
         setTimeout(() => {
           showCelebration();
         }, 1500);
       } else {
-        // Lanjut ke soal berikutnya
         setTimeout(() => {
           resetRound();
           generateNewNumber();
         }, 2000);
       }
     } else {
-      // SALAH
       streak = 0;
       playSound('wrong');
       speak('Coba lagi ya!');
@@ -448,14 +459,11 @@
       feedbackEl.textContent = '❌ Coba lagi!';
       feedbackEl.className = 'feedback wrong';
       
-      // Highlight tombol yang salah
       buttons[selectedNumber - 1].classList.add('wrong');
       
-      // Update progress
       updateStars();
       document.getElementById('streak').textContent = streak;
       
-      // Lanjut ke soal baru (tetap acak)
       setTimeout(() => {
         resetRound();
         generateNewNumber();
@@ -520,7 +528,6 @@
 
   // ===== INITIALIZATION =====
   window.addEventListener('load', () => {
-    // Load voices
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => {
@@ -528,7 +535,6 @@
       };
     }
     
-    // Mulai game setelah delay singkat
     setTimeout(() => {
       speak('Halo Wafi! Ayo kita bermain tebak angka!');
       setTimeout(() => {
@@ -537,11 +543,9 @@
     }, 500);
   });
 
-  // Klik di mana saja untuk mengaktifkan audio (browser requirement)
   document.addEventListener('click', () => {
     initAudio();
   }, { once: true });
 </script>
 </body>
 </html>
-
